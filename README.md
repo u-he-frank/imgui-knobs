@@ -1,4 +1,5 @@
-# ImGui Knobs
+# ImGui Knobs with Mods
+This is an extension to [imgui-knobs](https://github.com/altschuler/imgui-knobs) to allow the display of mod values
 This is a port/adaptation of [imgui-rs-knobs](https://github.com/DGriffin91/imgui-rs-knobs), for C++.
 
 ![image](https://user-images.githubusercontent.com/956928/164050142-96a8dde4-7d2e-43e4-9afe-14ab48eac243.png)
@@ -10,7 +11,7 @@ Add `imgui-knobs.cpp` and `imgui-knobs.h` to your project and include `imgui-kno
 ```cpp
 static float value = 0;
 
-if (ImGuiKnobs::Knob("Volume", &value, -6.0f, 6.0f, 0.1f, "%.1fdB", ImGuiKnobVariant_Tick)) {
+if (ImGuiKnobs::Knob("Volume", &value, -6.0f, 0.0f, 6.0f, 0.1f, "%.1fdB", ImGuiKnobVariant_Tick)) {
     // value was changed
 }
 ```
@@ -18,12 +19,14 @@ if (ImGuiKnobs::Knob("Volume", &value, -6.0f, 6.0f, 0.1f, "%.1fdB", ImGuiKnobVar
 Draw knobs using either `Knob` or `KnobInt`. The API is:
 
 ```
-bool ImGuiKnobs::Knob(label, *value, min, max, [speed, format, variant, size, flags, steps])
-bool ImGuiKnobs::KnobInt(label, *value, min, max, [speed, format, variant, size, flags, steps])
+bool ImGuiKnobs::Knob(label, *value, mod_value, min, max, [speed, format, variant, size, flags, steps])
+bool ImGuiKnobs::KnobInt(label, *value, mod_value, min, max, [speed, format, variant, size, flags, steps])
 ```
 
 ### Variants
-`variant` determines the visual look of the knob. Available variants are: `ImGuiKnobVariant_Tick`, `ImGuiKnobVariant_Dot`, `ImGuiKnobVariant_Wiper`, `ImGuiKnobVariant_WiperOnly`, `ImGuiKnobVariant_WiperDot`, `ImGuiKnobVariant_Stepped`, `ImGuiKnobVariant_Space`.
+`variant` determines the visual look of the knob. Available variants without modulation display: `ImGuiKnobVariant_Tick`, `ImGuiKnobVariant_Dot`, `ImGuiKnobVariant_Wiper`, `ImGuiKnobVariant_WiperOnly`, `ImGuiKnobVariant_WiperDot`, `ImGuiKnobVariant_Stepped`, `ImGuiKnobVariant_Space`.
+
+Available variants with modulation display: 'ImGuiKnobVariant_ImGuiKnobVariant_TickWiperDotMod'
 
 ### Flags
  - `ImGuiKnobFlags_NoTitle`: Hide the top title.
