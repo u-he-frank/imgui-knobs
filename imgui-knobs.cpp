@@ -33,7 +33,7 @@ namespace ImGuiKnobs {
 
             auto *draw_list = ImGui::GetWindowDrawList();
 
-            draw_list->AddBezierCurve(start, arc1, arc2, end, color, thickness, num_segments);
+            draw_list->AddBezierCubic(start, arc1, arc2, end, color, thickness, num_segments);
         }
 
         void draw_arc(ImVec2 center, float radius, float start_angle, float end_angle, float thickness, ImColor color, int num_segments, int bezier_count) {
@@ -66,9 +66,18 @@ namespace ImGuiKnobs {
             float angle_cos;
             float angle_sin;
 
-            knob(const char *_label, ImGuiDataType data_type, DataType *p_value, DataType v_min, DataType v_max, float speed, float _radius, const char *format, ImGuiKnobFlags flags) {
+            float mod_t;
+            float mod_angle;
+            float mod_angle_cos;
+            float mod_angle_sin;
+            
+            knob(const char *_label, ImGuiDataType data_type, DataType *p_value, DataType mod_value, DataType v_min, DataType v_max, float speed, float _radius, const char *format, ImGuiKnobFlags flags) {
                 radius = _radius;
                 t = ((float) *p_value - v_min) / (v_max - v_min);
+                float mod_tmp = (float)*p_value + (float)mod_value;
+                if (mod_tmp < v_min) mod_tmp = v_min;
+                else if (mod_tmp > v_max) mod_tmp = v_max;
+                mod_t = (mod_tmp - v_min) / (v_max - v_min);
                 auto screen_pos = ImGui::GetCursorScreenPos();
 
                 // Handle dragging
@@ -88,6 +97,10 @@ namespace ImGuiKnobs {
                 angle = angle_min + (angle_max - angle_min) * t;
                 angle_cos = cosf(angle);
                 angle_sin = sinf(angle);
+                
+                mod_angle = angle_min + (angle_max - angle_min) * mod_t;
+                mod_angle_cos = cosf(mod_angle);
+                mod_angle_sin = sinf(mod_angle);
             }
 
             void draw_dot(float size, float radius, float angle, color_set color, bool filled, int segments) {
@@ -140,7 +153,7 @@ namespace ImGuiKnobs {
         };
 
         template<typename DataType>
-        knob<DataType> knob_with_drag(const char *label, ImGuiDataType data_type, DataType *p_value, DataType v_min, DataType v_max, float _speed, const char *format, float size, ImGuiKnobFlags flags) {
+        knob<DataType> knob_with_drag(const char *label, ImGuiDataType data_type, DataType *p_value, DataType mod_value, DataType v_min, DataType v_max, float _speed, const char *format, float size, ImGuiKnobFlags flags) {
             auto speed = _speed == 0 ? (v_max - v_min) / 250.f : _speed;
             ImGui::PushID(label);
             auto width = size == 0 ? ImGui::GetTextLineHeight() * 4.0f : size * ImGui::GetIO().FontGlobalScale;
@@ -163,7 +176,7 @@ namespace ImGuiKnobs {
             }
 
             // Draw knob
-            knob<DataType> k(label, data_type, p_value, v_min, v_max, speed, width * 0.5f, format, flags);
+            knob<DataType> k(label, data_type, p_value, mod_value, v_min, v_max, speed, width * 0.5f, format, flags);
 
             // Draw tooltip
             if (flags & ImGuiKnobFlags_ValueTooltip && (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) || ImGui::IsItemActive())) {
@@ -223,8 +236,8 @@ namespace ImGuiKnobs {
 
 
     template<typename DataType>
-    bool BaseKnob(const char *label, ImGuiDataType data_type, DataType *p_value, DataType v_min, DataType v_max, float speed, const char *format, ImGuiKnobVariant variant, float size, ImGuiKnobFlags flags, int steps = 10) {
-        auto knob = detail::knob_with_drag(label, data_type, p_value, v_min, v_max, speed, format, size, flags);
+    bool BaseKnob(const char *label, ImGuiDataType data_type, DataType *p_value, DataType mod_value, DataType v_min, DataType v_max, float speed, const char *format, ImGuiKnobVariant variant, float size, ImGuiKnobFlags flags, int steps = 10) {
+        auto knob = detail::knob_with_drag(label, data_type, p_value, mod_value, v_min, v_max, speed, format, size, flags);
 
         switch (variant) {
             case ImGuiKnobVariant_Tick: {
@@ -282,19 +295,26 @@ namespace ImGuiKnobs {
                 }
                 break;
             }
+            // variants with modulation
+            case ImGuiKnobVariant_TickWiperDotMod: {
+                knob.draw_circle(0.6f, detail::GetSecondaryColorSet(), true, 32);
+                knob.draw_arc(0.85f, 0.41f, knob.angle_min, knob.angle_max, detail::GetTrackColorSet(), 16, 2);
+                knob.draw_tick(0.3f, 0.6f, 0.08f, knob.angle, detail::GetPrimaryColorSet());
+                knob.draw_dot(0.1f, 0.85f, knob.mod_angle, detail::GetPrimaryColorSet(), true, 12);
+            }
         }
 
         return knob.value_changed;
     }
 
-    bool Knob(const char *label, float *p_value, float v_min, float v_max, float speed, const char *format, ImGuiKnobVariant variant, float size, ImGuiKnobFlags flags, int steps) {
+    bool Knob(const char *label, float *p_value, float mod_value, float v_min, float v_max, float speed, const char *format, ImGuiKnobVariant variant, float size, ImGuiKnobFlags flags, int steps) {
         const char *_format = format == NULL ? "%.3f" : format;
-        return BaseKnob(label, ImGuiDataType_Float, p_value, v_min, v_max, speed, _format, variant, size, flags, steps);
+        return BaseKnob(label, ImGuiDataType_Float, p_value, mod_value, v_min, v_max, speed, _format, variant, size, flags, steps);
     }
 
-    bool KnobInt(const char *label, int *p_value, int v_min, int v_max, float speed, const char *format, ImGuiKnobVariant variant, float size, ImGuiKnobFlags flags, int steps) {
+    bool KnobInt(const char *label, int *p_value, int mod_value, int v_min, int v_max, float speed, const char *format, ImGuiKnobVariant variant, float size, ImGuiKnobFlags flags, int steps) {
         const char *_format = format == NULL ? "%i" : format;
-        return BaseKnob(label, ImGuiDataType_S32, p_value, v_min, v_max, speed, _format, variant, size, flags, steps);
+        return BaseKnob(label, ImGuiDataType_S32, p_value, mod_value, v_min, v_max, speed, _format, variant, size, flags, steps);
     }
 
 }// namespace ImGuiKnobs
