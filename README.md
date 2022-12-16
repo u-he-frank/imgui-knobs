@@ -27,7 +27,7 @@ bool ImGuiKnobs::KnobInt(label, *value, mod_value, min, max, [speed, format, var
 ### Variants
 `variant` determines the visual look of the knob. Available variants without modulation display: `ImGuiKnobVariant_Tick`, `ImGuiKnobVariant_Dot`, `ImGuiKnobVariant_Wiper`, `ImGuiKnobVariant_WiperOnly`, `ImGuiKnobVariant_WiperDot`, `ImGuiKnobVariant_Stepped`, `ImGuiKnobVariant_Space`.
 
-Available variants with modulation display: `ImGuiKnobVariant_ImGuiKnobVariant_TickWiperDotMod`.
+Available variants with modulation display: `ImGuiKnobVariant_TickWiperDotMod`.
 
 ### Flags
  - `ImGuiKnobFlags_NoTitle`: Hide the top title.
