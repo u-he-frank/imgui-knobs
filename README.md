@@ -1,5 +1,6 @@
-# ImGui Knobs with Mods
-This is an extension to [imgui-knobs](https://github.com/altschuler/imgui-knobs) to allow the display of mod values
+# ImGui Knobs with Modulation Display
+This is an extension to [imgui-knobs](https://github.com/altschuler/imgui-knobs) to allow the display of modulation values.
+
 This is a port/adaptation of [imgui-rs-knobs](https://github.com/DGriffin91/imgui-rs-knobs), for C++.
 
 ![image](https://user-images.githubusercontent.com/956928/164050142-96a8dde4-7d2e-43e4-9afe-14ab48eac243.png)
@@ -26,7 +27,7 @@ bool ImGuiKnobs::KnobInt(label, *value, mod_value, min, max, [speed, format, var
 ### Variants
 `variant` determines the visual look of the knob. Available variants without modulation display: `ImGuiKnobVariant_Tick`, `ImGuiKnobVariant_Dot`, `ImGuiKnobVariant_Wiper`, `ImGuiKnobVariant_WiperOnly`, `ImGuiKnobVariant_WiperDot`, `ImGuiKnobVariant_Stepped`, `ImGuiKnobVariant_Space`.
 
-Available variants with modulation display: 'ImGuiKnobVariant_ImGuiKnobVariant_TickWiperDotMod'
+Available variants with modulation display: `ImGuiKnobVariant_ImGuiKnobVariant_TickWiperDotMod`.
 
 ### Flags
  - `ImGuiKnobFlags_NoTitle`: Hide the top title.
